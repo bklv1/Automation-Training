@@ -1,4 +1,6 @@
-import org.junit.Test;
+package tests;
+
+import org.testng.annotations.Test;
 import pages.components.InputComponent;
 import pages.LoginPage;
 
