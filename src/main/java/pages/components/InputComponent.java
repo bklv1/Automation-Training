@@ -26,4 +26,9 @@ public class InputComponent {
             getComponent(labelName));
     }
 
+
+    public static void waitForComponent(String labelName) {
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        wait.until(ExpectedConditions.visibilityOf(getComponent(labelName)));
+    }
 }
