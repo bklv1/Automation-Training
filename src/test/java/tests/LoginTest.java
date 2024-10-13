@@ -12,7 +12,7 @@ public class LoginTest {
 
     @BeforeMethod
     public void setUp() {
-        DriverManager.getDriver().get(ConfigReader.getProperty("url"));
+        DriverManager.getDriver().get(ConfigReader.getProperty("loginPage"));
     }
 
     @AfterMethod
@@ -25,6 +25,5 @@ public class LoginTest {
         LoginPage.login(ConfigReader.getProperty("username"), ConfigReader.getProperty("password"));
         assert DashboardPage.isDashboardDisplayed();
     }
-
 
 }

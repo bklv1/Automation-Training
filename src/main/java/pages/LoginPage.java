@@ -1,8 +1,11 @@
 package pages;
 
 import base.DriverManager;
+import base.Navigate;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
+import utils.ConfigReader;
 
 public class LoginPage {
     private static WebDriver driver = DriverManager.getDriver();
@@ -12,8 +15,24 @@ public class LoginPage {
     private static By loginButton = By.cssSelector(".orangehrm-login-button");
 
     public static void login(String username, String password) {
+        Navigate.to(ConfigReader.getProperty("loginPage"));
         driver.findElement(usernameField).sendKeys(username);
         driver.findElement(passwordField).sendKeys(password);
         driver.findElement(loginButton).click();
     }
+
+    public static void loginWithCookie() {
+        driver.manage()
+            .addCookie(new Cookie("orangehrm", retrieveCookie()));
+    }
+
+    private static String retrieveCookie() {
+
+        login(ConfigReader.getProperty("username"), ConfigReader.getProperty("password"));
+        return driver.manage()
+            .getCookieNamed("orangehrm")
+            .getValue();
+    }
+
+
 }
