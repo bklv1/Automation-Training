@@ -20,4 +20,7 @@ public class Dropdown
         return driver.findElement(By.xpath(String.format("//label[text()='%s']/following::i[1]", labelName)));
     }
 
+    public static void clickResetButton() {
+        driver.findElement(By.xpath("//button[text()='Reset']")).click();
+    }
 }
