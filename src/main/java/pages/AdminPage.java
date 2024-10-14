@@ -18,12 +18,4 @@ public class AdminPage extends Base {
         Button.clickSubmitButton();
     }
 
-    public static void searchForAdminWithESSRole(){
-        Navigate.to(ConfigReader.getProperty("adminPage"));
-        Input.sendKeys("Username", "Admin");
-        Dropdown.selectDropdownValue("User Role", "ESS");
-        Dropdown.selectDropdownValue("Status", "Enabled");
-        Button.clickSubmitButton();
-        Button.clickResetButton();
-    }
 }

@@ -1,14 +1,12 @@
 package pages;
 
-import base.DriverManager;
+import base.Base;
 import base.Navigate;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
-import org.openqa.selenium.WebDriver;
-import utils.ConfigReader;
+import base.ConfigReader;
 
-public class LoginPage {
-    private static WebDriver driver = DriverManager.getDriver();
+public class LoginPage extends Base {
 
     private static By usernameField = By.name("username");
 
