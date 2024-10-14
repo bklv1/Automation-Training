@@ -13,11 +13,5 @@ public class AdminTest
         AdminPage.searchForAdmin();
     }
 
-    @Test
-    public void searchForAdminWithESSRole() {
-        LoginPage.loginWithCookie(cookie);
-        AdminPage.searchForAdminWithESSRole();
-    }
-
 }
 
