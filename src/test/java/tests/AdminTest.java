@@ -1,11 +1,8 @@
 package tests;
 
-import base.Navigate;
-import org.openqa.selenium.WebDriver;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import pages.AdminPage;
 import pages.LoginPage;
-import utils.ConfigReader;
 
 public class AdminTest
     extends BaseTest {
@@ -13,7 +10,7 @@ public class AdminTest
     @Test
     public void searchForAdmin() {
         LoginPage.loginWithCookie(cookie);
-        Navigate.to(ConfigReader.getProperty("adminPage"));
+        AdminPage.searchForAdmin();
     }
 
 }
