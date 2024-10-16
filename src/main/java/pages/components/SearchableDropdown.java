@@ -4,11 +4,15 @@ import base.Base;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-public class SearchableDropdown extends Base{
+public class SearchableDropdown
+    extends Base {
 
     public static void selectFirstSearchValue(String labelName, String searchValue) {
         getComponent(labelName).sendKeys(searchValue);
-        getComponent(labelName).findElements(getSearchValue(searchValue)).get(0).click();
+        waitForComponents(getComponent(labelName).findElements(getSearchValue(searchValue)));
+        getComponent(labelName).findElements(getSearchValue(searchValue))
+            .get(0)
+            .click();
     }
 
     private static By getSearchValue(String searchValue) {

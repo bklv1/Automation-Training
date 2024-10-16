@@ -17,14 +17,6 @@ public class Input
         return driver.findElement(By.xpath(String.format("//label[text()='%s']/following::input[1]", labelName)));
     }
 
-    public static void scrollTo(String labelName) {
-        javascriptExecutor.executeScript(
-            "arguments[0].scrollIntoView({behavior: 'auto', block: 'center', inline: 'center'});",
-            getComponent(labelName));
-    }
 
-    public static void waitForComponent(String labelName) {
-        WebDriverWait wait = new WebDriverWait(driver, 10);
-        wait.until(ExpectedConditions.visibilityOf(getComponent(labelName)));
-    }
+
 }

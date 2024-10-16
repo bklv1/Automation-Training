@@ -1,12 +1,11 @@
 package pages;
 
 import base.Base;
-import base.Button;
+import pages.components.Button;
 import base.ConfigReader;
 import base.Navigate;
 import pages.components.Dropdown;
 import pages.components.Input;
-import pages.components.SearchableDropdown;
 
 public class AdminPage extends Base {
 

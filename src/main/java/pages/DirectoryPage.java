@@ -1,7 +1,7 @@
 package pages;
 
 import base.Base;
-import base.Button;
+import pages.components.Button;
 import base.ConfigReader;
 import base.Navigate;
 import pages.components.Dropdown;

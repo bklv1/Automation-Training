@@ -1,5 +1,6 @@
-package base;
+package pages.components;
 
+import base.Base;
 import org.openqa.selenium.By;
 
 public class Button
