@@ -15,4 +15,9 @@ public class DirectoryPage extends Base {
         Dropdown.selectDropdownValue("Job Title", jobTitle);
         Button.clickButtonByText("Search");
     }
+
+    public static void verifySearchResults(String employeeName, String jobTitle) {
+        // TODO: Implement verification logic
+        // This method should check if the search results contain the expected employee name and job title
+    }
 }

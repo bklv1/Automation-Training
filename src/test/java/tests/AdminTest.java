@@ -5,8 +5,7 @@ import pages.AdminPage;
 import pages.DirectoryPage;
 import pages.LoginPage;
 
-public class AdminTest
-    extends BaseTest {
+public class AdminTest extends BaseTest {
 
     @Test
     public void searchForAdmin() {
@@ -25,6 +24,7 @@ public class AdminTest
     public void searchDirectoryForEmployee() {
         LoginPage.loginWithCookie(cookie);
         DirectoryPage.searchDirectory("Amelia Brown", "QA Lead");
+        DirectoryPage.verifySearchResults("Amelia Brown", "QA Lead");
     }
 }
 
