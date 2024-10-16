@@ -9,4 +9,9 @@ public class Button
         driver.findElement(By.xpath(("//button[@type='submit']")))
             .click();
     }
+
+    public static void clickButtonByText(String buttonText) {
+        driver.findElement(By.xpath(String.format("//button[normalize-space()='%s']", buttonText)))
+            .click();
+    }
 }

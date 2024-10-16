@@ -13,5 +13,11 @@ public class AdminTest
         AdminPage.searchForAdmin();
     }
 
+    @Test
+    public void searchForAdminAndReset() {
+        LoginPage.loginWithCookie(cookie);
+        AdminPage.searchForAdminESS();
+        AdminPage.clickResetButton();
+    }
 }
 
