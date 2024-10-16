@@ -2,6 +2,7 @@ package tests;
 
 import org.testng.annotations.Test;
 import pages.AdminPage;
+import pages.DirectoryPage;
 import pages.LoginPage;
 
 public class AdminTest
@@ -18,7 +19,12 @@ public class AdminTest
         LoginPage.loginWithCookie(cookie);
         AdminPage.searchForAdminESS();
         AdminPage.clickResetButton();
-        int ceco=1;
+    }
+
+    @Test
+    public void searchDirectoryForEmployee() {
+        LoginPage.loginWithCookie(cookie);
+        DirectoryPage.searchDirectory("Amelia Brown", "QA Lead");
     }
 }
 
