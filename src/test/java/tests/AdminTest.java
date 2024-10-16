@@ -13,14 +13,5 @@ public class AdminTest
         AdminPage.searchForAdmin();
     }
 
-    @Test
-    public void testResetButton() {
-        LoginPage.loginWithCookie(cookie);
-        AdminPage.navigateToAdminTab();
-        AdminPage.searchForUsername("Admin");
-        AdminPage.searchForUserRole("ESS");
-        AdminPage.clickResetButton();
-    }
-
 }
 

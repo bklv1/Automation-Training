@@ -18,16 +18,4 @@ public class AdminPage extends Base {
         Button.clickSubmitButton();
     }
 
-    public static void searchForUsername(String username) {
-        Input.sendKeys("Username", username);
-    }
-
-    public static void searchForUserRole(String userRole) {
-        Dropdown.selectDropdownValue("User Role", userRole);
-    }
-
-    public static void clickResetButton() {
-        Button.clickButton("Reset");
-    }
-
 }
