@@ -18,6 +18,7 @@ public class AdminTest
         LoginPage.loginWithCookie(cookie);
         AdminPage.searchForAdminESS();
         AdminPage.clickResetButton();
+        int ceco=1;
     }
 }
 
