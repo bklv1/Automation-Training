@@ -32,7 +32,8 @@ public class TestRecorder {
 
     private static void startRecording() {
         EventFiringWebDriver eventDriver = new EventFiringWebDriver(driver);
-        eventDriver.register(new WebDriverEventListener());
+        CustomWebDriverEventListener listener = new CustomWebDriverEventListener();
+        eventDriver.register(listener);
 
         System.out.println("Enter the URL you want to open:");
         Scanner scanner = new Scanner(System.in);
@@ -53,6 +54,13 @@ public class TestRecorder {
         inputThread.start();
 
         while (isRecording) {
+            WebElement hoveredElement = null;
+            try {
+                hoveredElement = eventDriver.findElement(By.xpath("//*[contains(@style,'cursor: pointer')]"));
+                listener.onMouseHover(hoveredElement);
+            } catch (NoSuchElementException e) {
+                // No element with cursor: pointer found, continue
+            }
             actions.moveByOffset(0, 0).perform(); // This will trigger mouseMoved event
             try {
                 Thread.sleep(100); // Check every 100ms
@@ -70,7 +78,7 @@ public class TestRecorder {
         driver.quit();
     }
 
-    private static class WebDriverEventListener extends AbstractWebDriverEventListener {
+    private static class CustomWebDriverEventListener extends AbstractWebDriverEventListener {
         @Override
         public void beforeClickOn(WebElement element, WebDriver driver) {
             addInteractedElement(element);
