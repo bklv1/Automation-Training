@@ -19,9 +19,10 @@ def run_aider(prompt, result_queue):
 
     try:
         start_time = time.time()
-        command = ['aider', '--no-pretty', '--no-interactive', '--sonnet', prompt]
+        command = ['aider', '--no-pretty', '--sonnet', prompt]
         logging.debug(f"Running command: {' '.join(command)}")
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        logging.debug("Subprocess started")
         try:
             stdout, stderr = process.communicate(timeout=55)  # 55 seconds timeout
         except subprocess.TimeoutExpired:
