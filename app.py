@@ -53,18 +53,22 @@ def run_aider(prompt, result_queue):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    logging.info(f"Received {request.method} request")
     if request.method == 'POST':
         prompt = request.form['query']
+        logging.info(f"Received prompt: {prompt}")
         result_queue = queue.Queue()
         thread = threading.Thread(target=run_aider, args=(prompt, result_queue))
         thread.start()
         thread.join(timeout=60)  # Wait for up to 60 seconds
 
         if thread.is_alive():
+            logging.warning("Operation timed out")
             return jsonify({'error': 'Operation timed out'}), 408
 
         result = result_queue.get()
         if 'error' in result:
+            logging.error(f"Error in result: {result['error']}")
             return jsonify({'error': result['error']}), 400
         
         response = {
@@ -73,10 +77,11 @@ def index():
             'return_code': result.get('return_code', None),
             'execution_time': result.get('execution_time', None)
         }
-        logging.debug(f"Response: {response}")
+        logging.info(f"Sending response: {response}")
         return jsonify(response)
 
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    logging.info("Starting Flask app...")
+    app.run(debug=True, host='0.0.0.0')
