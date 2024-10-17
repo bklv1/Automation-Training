@@ -7,6 +7,7 @@ import org.openqa.selenium.support.events.AbstractWebDriverEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class TestRecorder {
     private static WebDriver driver;
@@ -14,9 +15,12 @@ public class TestRecorder {
     private static long lastInteractionTime = 0;
     private static WebElement lastHoveredElement = null;
 
+    private static boolean isRecording = true;
+
     public static void main(String[] args) {
         initializeDriver();
         startRecording();
+        endRecording();
     }
 
     private static void initializeDriver() {
@@ -31,12 +35,24 @@ public class TestRecorder {
         eventDriver.register(new WebDriverEventListener());
 
         System.out.println("Enter the URL you want to open:");
-        String url = System.console().readLine();
+        Scanner scanner = new Scanner(System.in);
+        String url = scanner.nextLine();
         eventDriver.get(url);
 
         Actions actions = new Actions(eventDriver);
 
-        while (true) {
+        System.out.println("Recording started. Press 'q' and Enter to stop recording.");
+
+        Thread inputThread = new Thread(() -> {
+            while (isRecording) {
+                if (scanner.nextLine().equalsIgnoreCase("q")) {
+                    isRecording = false;
+                }
+            }
+        });
+        inputThread.start();
+
+        while (isRecording) {
             actions.moveByOffset(0, 0).perform(); // This will trigger mouseMoved event
             try {
                 Thread.sleep(100); // Check every 100ms
@@ -44,6 +60,14 @@ public class TestRecorder {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static void endRecording() {
+        System.out.println("Recording ended. Here's a summary of interacted elements:");
+        for (WebElement element : interactedElements) {
+            System.out.println(getElementInfo(element));
+        }
+        driver.quit();
     }
 
     private static class WebDriverEventListener extends AbstractWebDriverEventListener {
