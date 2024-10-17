@@ -7,8 +7,8 @@ app = Flask(__name__)
 
 def run_aider(prompt, result_queue):
     try:
-        process = subprocess.Popen(['aider', '--sonnet'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        stdout, stderr = process.communicate(input=prompt)
+        process = subprocess.Popen(['aider', '--no-pretty', '--no-interactive', '--sonnet', prompt], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        stdout, stderr = process.communicate()
         result_queue.put({'stdout': stdout, 'stderr': stderr})
     except Exception as e:
         result_queue.put({'error': str(e)})
