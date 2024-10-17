@@ -2,15 +2,26 @@ from flask import Flask, render_template, request, jsonify
 import subprocess
 import threading
 import queue
+import time
+import logging
+import shutil
 
 app = Flask(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
-import time
+def check_aider_installation():
+    return shutil.which('aider') is not None
 
 def run_aider(prompt, result_queue):
+    if not check_aider_installation():
+        result_queue.put({'error': 'Aider is not installed or not in the system PATH'})
+        return
+
     try:
         start_time = time.time()
-        process = subprocess.Popen(['aider', '--no-pretty', '--no-interactive', '--sonnet', prompt], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        command = ['aider', '--no-pretty', '--no-interactive', '--sonnet', prompt]
+        logging.debug(f"Running command: {' '.join(command)}")
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
             stdout, stderr = process.communicate(timeout=55)  # 55 seconds timeout
         except subprocess.TimeoutExpired:
@@ -31,10 +42,12 @@ def run_aider(prompt, result_queue):
         }
 
         if return_code != 0:
-            result['error'] = f'Aider process failed with return code {return_code}'
-
+            result['error'] = f'Aider process failed with return code {return_code}. Stderr: {stderr}'
+        
+        logging.debug(f"Aider result: {result}")
         result_queue.put(result)
     except Exception as e:
+        logging.exception("Error running aider")
         result_queue.put({'error': f'Error running aider: {str(e)}'})
 
 @app.route('/', methods=['GET', 'POST'])
@@ -59,6 +72,7 @@ def index():
             'return_code': result.get('return_code', None),
             'execution_time': result.get('execution_time', None)
         }
+        logging.debug(f"Response: {response}")
         return jsonify(response)
 
     return render_template('index.html')
