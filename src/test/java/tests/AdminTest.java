@@ -2,15 +2,19 @@ package tests;
 
 import org.testng.annotations.Test;
 import pages.AdminPage;
-import pages.DirectoryPage;
 import pages.LoginPage;
+import pages.components.Table;
 
-public class AdminTest extends BaseTest {
+import java.util.Arrays;
+
+public class AdminTest
+    extends BaseTest {
 
     @Test
     public void searchForAdmin() {
         LoginPage.loginWithCookie(cookie);
         AdminPage.searchForAdmin();
+        Table.assertFirstRowValue(Arrays.asList("Admin", "Admin", "manda user", "Enabled"));
     }
 
     @Test
@@ -20,10 +24,4 @@ public class AdminTest extends BaseTest {
         AdminPage.clickResetButton();
     }
 
-    @Test
-    public void searchDirectoryForEmployee() {
-        LoginPage.loginWithCookie(cookie);
-        DirectoryPage.searchDirectory("Amelia Brown", "QA Lead");
-    }
 }
-
