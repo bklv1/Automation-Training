@@ -46,17 +46,18 @@ public class TestRecorder {
 
         Thread inputThread = new Thread(() -> {
             while (isRecording) {
-                if (scanner.nextLine().equalsIgnoreCase("q")) {
+                String input = scanner.nextLine();
+                if (input.equalsIgnoreCase("q")) {
                     isRecording = false;
+                    System.out.println("Stopping recording...");
                 }
             }
         });
         inputThread.start();
 
         while (isRecording) {
-            WebElement hoveredElement = null;
             try {
-                hoveredElement = eventDriver.findElement(By.xpath("//*[contains(@style,'cursor: pointer')]"));
+                WebElement hoveredElement = eventDriver.findElement(By.xpath("//*[contains(@style,'cursor: pointer')]"));
                 listener.onMouseHover(hoveredElement);
             } catch (NoSuchElementException e) {
                 // No element with cursor: pointer found, continue
@@ -67,6 +68,12 @@ public class TestRecorder {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+
+        try {
+            inputThread.join(5000); // Wait for input thread to finish, but no longer than 5 seconds
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
