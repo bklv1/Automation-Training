@@ -5,19 +5,19 @@ pipeline {
     stages{
         stage("build") {
             steps {
-                echo 'building... with cron'
+                echo 'mvn clean install'
             }
         }
 
         stage("test") {
             steps {
-                echo 'testing...'
+                echo 'mvn test'
             }
         }
 
         stage("deploy") {
             steps {
-                echo 'deploying...'
+                echo 'later make it merge in master...'
             }
         }
     }
