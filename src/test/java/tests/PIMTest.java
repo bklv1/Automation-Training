@@ -4,7 +4,8 @@ import org.testng.annotations.Test;
 import pages.LoginPage;
 import pages.PIMPage;
 
-public class PIMTest extends BaseTest {
+public class PIMTest
+    extends BaseTest {
 
     @Test
     public void searchEmployeeByEmploymentStatus() {
@@ -12,6 +13,7 @@ public class PIMTest extends BaseTest {
         PIMPage.navigateToPIM();
         PIMPage.searchByEmploymentStatus("Full-Time Contract");
         PIMPage.clickSearchButton();
-        PIMPage.assertEmployeeDetails("0042", "Rebecca", "Harmony", "QA Engineer", "Full-Time Contract", "Quality Assurance");
+        PIMPage.assertEmployeeDetails("0042", "Rebecca", "Harmony", "QA Engineer", "Full-Time Contract",
+            "Quality Assurance");
     }
 }
