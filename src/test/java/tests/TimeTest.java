@@ -1,12 +1,7 @@
-package tests;
-
-public class TimeTest {
-}
-package tests;
-
 import org.testng.annotations.Test;
 import pages.LoginPage;
 import pages.TimePage;
+import tests.BaseTest;
 
 public class TimeTest extends BaseTest {
 
@@ -15,6 +10,7 @@ public class TimeTest extends BaseTest {
         LoginPage.loginWithCookie(cookie);
         TimePage.navigateToTime();
         TimePage.searchForEmployee("Jean Krishna User");
+        TimePage.clickViewButton();
         TimePage.clickViewButton();
     }
 }

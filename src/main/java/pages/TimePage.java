@@ -1,6 +1,8 @@
 package pages;
 
 import base.Base;
+import base.ConfigReader;
+import base.Navigate;
 import pages.components.Input;
 import pages.components.Button;
 import org.openqa.selenium.By;
@@ -20,7 +22,6 @@ public class TimePage extends Base {
     }
 
     public static void clickViewButton() {
-        waitForComponent("View Button", driver.findElement(viewButton));
         Button.clickButtonByText("View");
     }
 }
