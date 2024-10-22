@@ -4,9 +4,22 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import NoSuchWindowException
 import time
+import atexit
 
 def run_test_recorder():
+    driver = None
+    page_clicks_map = {}
+    page_hovers_map = {}
+
+    def cleanup():
+        print("\nShutdown hook triggered. Printing recorded elements...")
+        print_recorded_elements(page_clicks_map, page_hovers_map)
+        if driver:
+            driver.quit()
+
+    atexit.register(cleanup)
     # Initialize WebDriver
     chrome_options = Options()
     chrome_options.add_argument("--remote-allow-origins=*")
@@ -36,58 +49,66 @@ def run_test_recorder():
 
     try:
         while True:
-            # Check if URL has changed
-            if current_url != driver.current_url:
-                current_url = driver.current_url
-                # Wait for the new page to load
-                wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-                # Re-inject JavaScript on the new page
-                inject_listeners(driver)
+            try:
+                # Check if URL has changed
+                if current_url != driver.current_url:
+                    current_url = driver.current_url
+                    # Wait for the new page to load
+                    wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+                    # Re-inject JavaScript on the new page
+                    inject_listeners(driver)
 
-                # Initialize the lists for the new page if not already present
-                page_clicks_map.setdefault(current_url, [])
-                page_hovers_map.setdefault(current_url, [])
+                    # Initialize the lists for the new page if not already present
+                    page_clicks_map.setdefault(current_url, [])
+                    page_hovers_map.setdefault(current_url, [])
 
-            # Retrieve the HTML of the last clicked element
-            clicked_element_html = driver.execute_script("return window.clickedElementHtml;")
-            if clicked_element_html and clicked_element_html not in page_clicks_map[current_url]:
-                page_clicks_map[current_url].append(clicked_element_html)
-                print(f"Clicked Element: {clicked_element_html}")
+                # Retrieve the HTML of the last clicked element
+                clicked_element_html = driver.execute_script("return window.clickedElementHtml;")
+                if clicked_element_html and clicked_element_html not in page_clicks_map[current_url]:
+                    page_clicks_map[current_url].append(clicked_element_html)
+                    print(f"Clicked Element: {clicked_element_html}")
 
-            # Retrieve the HTML of the last hovered element
-            hovered_element_html = driver.execute_script("return window.hoveredElementHtml;")
-            if hovered_element_html and hovered_element_html not in page_hovers_map[current_url]:
-                page_hovers_map[current_url].append(hovered_element_html)
-                print(f"Hovered Element: {hovered_element_html}")
+                # Retrieve the HTML of the last hovered element
+                hovered_element_html = driver.execute_script("return window.hoveredElementHtml;")
+                if hovered_element_html and hovered_element_html not in page_hovers_map[current_url]:
+                    page_hovers_map[current_url].append(hovered_element_html)
+                    print(f"Hovered Element: {hovered_element_html}")
 
-            # Sleep for a short duration to prevent excessive CPU usage
-            time.sleep(1)
+                # Sleep for a short duration to prevent excessive CPU usage
+                time.sleep(1)
 
-            # Break the loop after 10 unique clicks and 10 unique hovers
-            if (sum(len(clicks) for clicks in page_clicks_map.values()) >= 10 and
-                sum(len(hovers) for hovers in page_hovers_map.values()) >= 10):
+                # Break the loop after 10 unique clicks and 10 unique hovers
+                if (sum(len(clicks) for clicks in page_clicks_map.values()) >= 10 and
+                    sum(len(hovers) for hovers in page_hovers_map.values()) >= 10):
+                    break
+
+            except NoSuchWindowException:
+                print("ERROR: Test Recorder error: Browser window was closed unexpectedly.")
                 break
 
+    except Exception as e:
+        print(f"An unexpected error occurred: {str(e)}")
+
     finally:
-        # Print all recorded elements grouped by page URL
-        print("\nAll Clicked Elements by Page:")
-        for url, elements in page_clicks_map.items():
-            if elements:
-                print(f"Page URL: {url}")
-                for element_html in elements:
-                    print(f" - {element_html}")
-
-        print("\nAll Hovered Elements by Page:")
-        for url, elements in page_hovers_map.items():
-            if elements:
-                print(f"Page URL: {url}")
-                for element_html in elements:
-                    print(f" - {element_html}")
-
-        # Clean up
-        driver.quit()
+        # The cleanup function registered with atexit will handle printing and driver.quit()
+        pass
 
     return page_clicks_map, page_hovers_map
+
+def print_recorded_elements(page_clicks_map, page_hovers_map):
+    print("\nAll Clicked Elements by Page:")
+    for url, elements in page_clicks_map.items():
+        if elements:
+            print(f"Page URL: {url}")
+            for element_html in elements:
+                print(f" - {element_html}")
+
+    print("\nAll Hovered Elements by Page:")
+    for url, elements in page_hovers_map.items():
+        if elements:
+            print(f"Page URL: {url}")
+            for element_html in elements:
+                print(f" - {element_html}")
 
 def inject_listeners(driver):
     script = """
