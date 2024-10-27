@@ -74,36 +74,46 @@ def run_test_recorder():
         page_hovers_map[current_url] = []
 
         while True:
-            if current_url != driver.current_url:
-                current_url = driver.current_url
-                wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-                inject_listeners(driver)
+            try:
+                if current_url != driver.current_url:
+                    current_url = driver.current_url
+                    wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+                    inject_listeners(driver)
 
-                page_clicks_map.setdefault(current_url, [])
-                page_hovers_map.setdefault(current_url, [])
+                    page_clicks_map.setdefault(current_url, [])
+                    page_hovers_map.setdefault(current_url, [])
 
-            clicked_element_html = driver.execute_script("return window.clickedElementHtml;")
-            if clicked_element_html and clicked_element_html not in page_clicks_map[current_url]:
-                page_clicks_map[current_url].append(clicked_element_html)
-                print(f"Clicked Element: {clicked_element_html}")
+                clicked_element_html = driver.execute_script("return window.clickedElementHtml;")
+                if clicked_element_html and clicked_element_html not in page_clicks_map[current_url]:
+                    page_clicks_map[current_url].append(clicked_element_html)
+                    print(f"Clicked Element: {clicked_element_html}")
 
-            hovered_element_html = driver.execute_script("return window.hoveredElementHtml;")
-            if hovered_element_html and hovered_element_html not in page_hovers_map[current_url]:
-                page_hovers_map[current_url].append(hovered_element_html)
-                print(f"Hovered Element: {hovered_element_html}")
+                hovered_element_html = driver.execute_script("return window.hoveredElementHtml;")
+                if hovered_element_html and hovered_element_html not in page_hovers_map[current_url]:
+                    page_hovers_map[current_url].append(hovered_element_html)
+                    print(f"Hovered Element: {hovered_element_html}")
 
-            time.sleep(1)
+                time.sleep(1)
 
-            total_clicks = sum(len(clicks) for clicks in page_clicks_map.values())
-            total_hovers = sum(len(hovers) for hovers in page_hovers_map.values())
-            if total_clicks >= 10 and total_hovers >= 10:
+                total_clicks = sum(len(clicks) for clicks in page_clicks_map.values())
+                total_hovers = sum(len(hovers) for hovers in page_hovers_map.values())
+                if total_clicks >= 10 and total_hovers >= 10:
+                    break
+            except Exception as e:
+                print("Browser window closed or WebDriver exception occurred")
                 break
 
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
+        print(f"An error occurred during initialization: {str(e)}")
 
     finally:
-        driver.quit()
+        try:
+            driver.quit()
+        except:
+            pass
+
+    print("\nTest recording completed. Printing results:")
+    print_recorded_elements(page_clicks_map, page_hovers_map)
 
     return page_clicks_map, page_hovers_map
 
