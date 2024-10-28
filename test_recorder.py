@@ -56,13 +56,6 @@ def run_test_recorder():
     page_clicks_map = {}
     page_hovers_map = {}
 
-    def cleanup():
-        print("\nShutdown hook triggered. Printing recorded elements...")
-        print_recorded_elements(page_clicks_map, page_hovers_map)
-        driver.quit()
-
-    atexit.register(cleanup)
-
     try:
         driver.get("https://opensource-demo.orangehrmlive.com/")
         inject_listeners(driver)
@@ -111,9 +104,8 @@ def run_test_recorder():
             driver.quit()
         except:
             pass
-
-    print("\nTest recording completed. Printing results:")
-    print_recorded_elements(page_clicks_map, page_hovers_map)
+        print("\nTest recording completed. Printing results:")
+        print_recorded_elements(page_clicks_map, page_hovers_map)
 
     return page_clicks_map, page_hovers_map
 
