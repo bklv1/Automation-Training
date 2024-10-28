@@ -68,6 +68,10 @@ def run_test_recorder():
 
         while True:
             try:
+                if not driver.window_handles:
+                    print("Browser window closed. Ending recording.")
+                    break
+
                 if current_url != driver.current_url:
                     current_url = driver.current_url
                     wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
@@ -93,8 +97,11 @@ def run_test_recorder():
                 if total_clicks >= 10 and total_hovers >= 10:
                     break
             except Exception as e:
-                print("Browser window closed or WebDriver exception occurred")
-                break
+                print(f"An error occurred: {str(e)}")
+                if "no such window" in str(e) or "invalid session id" in str(e):
+                    print("Browser window closed. Ending recording.")
+                    break
+                time.sleep(1)  # Wait a bit before retrying
 
     except Exception as e:
         print(f"An error occurred during initialization: {str(e)}")
