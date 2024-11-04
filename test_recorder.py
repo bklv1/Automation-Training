@@ -1,131 +1,116 @@
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import NoSuchWindowException, WebDriverException
+from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 import time
-import atexit
 
-def run_test_recorder():
-    driver = None
-    page_clicks_map = {}
-    page_hovers_map = {}
+class TestRecorder:
+    def __init__(self):
+        chrome_options = Options()
+        # Add any options if needed
+        self.driver = webdriver.Chrome(service=Service(), options=chrome_options)
+        self.wait = WebDriverWait(self.driver, 10)
+        self.page_clicks_map = {}
+        self.page_hovers_map = {}
+        self.current_url = ""
 
-    def cleanup():
-        print("\nShutdown hook triggered. Printing recorded elements...")
-        print_recorded_elements(page_clicks_map, page_hovers_map)
-        if driver:
-            driver.quit()
+    def run(self):
+        try:
+            self.setup_shutdown_hook()
+            self.open_initial_page("https://opensource-demo.orangehrmlive.com/")
+            self.monitor_user_interactions()
+        finally:
+            self.clean_up()
 
-    atexit.register(cleanup)
-    # Initialize WebDriver
-    chrome_options = Options()
-    chrome_options.add_argument("--remote-allow-origins=*")
-    chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--disable-popup-blocking")
-    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    driver = webdriver.Chrome(options=chrome_options)
+    def open_initial_page(self, url):
+        self.driver.get(url)
+        self.current_url = self.driver.current_url
+        self.page_clicks_map[self.current_url] = []
+        self.page_hovers_map[self.current_url] = []
+        self.inject_listeners()
 
-    try:
-        # Open the initial page
-        driver.get("https://opensource-demo.orangehrmlive.com/")
+    def monitor_user_interactions(self):
+        browser_open = True
 
-        # Inject JavaScript to listen for click and hover events
-        inject_listeners(driver)
-
-        # Maps to store the list of clicked and hovered elements for each URL
-        page_clicks_map = {}
-        page_hovers_map = {}
-
-        # Monitor URL changes and re-inject JavaScript
-        current_url = driver.current_url
-        wait = WebDriverWait(driver, 10)
-
-        # Initialize the lists for the initial page
-        page_clicks_map[current_url] = []
-        page_hovers_map[current_url] = []
-
-        while True:
+        while browser_open:
             try:
-                # Check if URL has changed
-                if current_url != driver.current_url:
-                    current_url = driver.current_url
-                    # Wait for the new page to load
-                    wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-                    # Re-inject JavaScript on the new page
-                    inject_listeners(driver)
-
-                    # Initialize the lists for the new page if not already present
-                    page_clicks_map.setdefault(current_url, [])
-                    page_hovers_map.setdefault(current_url, [])
-
-                # Retrieve the HTML of the last clicked element
-                clicked_element_html = driver.execute_script("return window.clickedElementHtml;")
-                if clicked_element_html and clicked_element_html not in page_clicks_map[current_url]:
-                    page_clicks_map[current_url].append(clicked_element_html)
-                    print(f"Clicked Element: {clicked_element_html}")
-
-                # Retrieve the HTML of the last hovered element
-                hovered_element_html = driver.execute_script("return window.hoveredElementHtml;")
-                if hovered_element_html and hovered_element_html not in page_hovers_map[current_url]:
-                    page_hovers_map[current_url].append(hovered_element_html)
-                    print(f"Hovered Element: {hovered_element_html}")
-
-                # Sleep for a short duration to prevent excessive CPU usage
+                self.handle_url_change()
+                self.record_interactions()
                 time.sleep(1)
+            except WebDriverException:
+                browser_open = False
 
-            except (NoSuchWindowException, WebDriverException) as e:
-                print(f"ERROR: Test Recorder error: {str(e)}")
-                break
+    def handle_url_change(self):
+        if self.current_url != self.driver.current_url:
+            self.current_url = self.driver.current_url
+            self.wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+            self.inject_listeners()
+            self.page_clicks_map.setdefault(self.current_url, [])
+            self.page_hovers_map.setdefault(self.current_url, [])
 
-    except Exception as e:
-        print(f"An unexpected error occurred: {str(e)}")
+    def record_interactions(self):
+        self.record_clicked_element()
+        self.record_hovered_element()
 
-    finally:
-        if driver:
-            driver.quit()
+    def record_clicked_element(self):
+        clicked_element_html = self.driver.execute_script("return window.clickedElementHtml;")
+        if clicked_element_html and clicked_element_html not in self.page_clicks_map[self.current_url]:
+            self.page_clicks_map[self.current_url].append(clicked_element_html)
+            print(f"Clicked Element: {clicked_element_html}")
 
-    return page_clicks_map, page_hovers_map
+    def record_hovered_element(self):
+        hovered_element_html = self.driver.execute_script("return window.hoveredElementHtml;")
+        if hovered_element_html and hovered_element_html not in self.page_hovers_map[self.current_url]:
+            self.page_hovers_map[self.current_url].append(hovered_element_html)
+            print(f"Hovered Element: {hovered_element_html}")
 
-def print_recorded_elements(page_clicks_map, page_hovers_map):
-    print("\nAll Clicked Elements by Page:")
-    for url, elements in page_clicks_map.items():
-        if elements:
-            print(f"Page URL: {url}")
-            for element_html in elements:
-                print(f" - {element_html}")
+    def inject_listeners(self):
+        script = """
+        var hoverTimeout;
+        document.addEventListener('click', function(event) {
+            var element = event.target;
+            window.clickedElementHtml = element.outerHTML;
+            console.log('Element clicked: ' + window.clickedElementHtml);
+        }, true);
+        document.addEventListener('mouseover', function(event) {
+            var element = event.target;
+            hoverTimeout = setTimeout(function() {
+                window.hoveredElementHtml = element.outerHTML;
+                console.log('Element hovered for 5 seconds: ' + window.hoveredElementHtml);
+            }, 5000);
+        }, true);
+        document.addEventListener('mouseout', function(event) {
+            clearTimeout(hoverTimeout);
+        }, true);
+        """
+        self.driver.execute_script(script)
 
-    print("\nAll Hovered Elements by Page:")
-    for url, elements in page_hovers_map.items():
-        if elements:
-            print(f"Page URL: {url}")
-            for element_html in elements:
-                print(f" - {element_html}")
+    def setup_shutdown_hook(self):
+        import atexit
+        atexit.register(self.print_recorded_elements)
 
-def inject_listeners(driver):
-    script = """
-    var hoverTimeout;
-    document.addEventListener('click', function(event) {
-        var element = event.target;
-        window.clickedElementHtml = element.outerHTML;
-        console.log('Element clicked: ' + window.clickedElementHtml);
-    }, true);
-    document.addEventListener('mouseover', function(event) {
-        var element = event.target;
-        hoverTimeout = setTimeout(function() {
-            var clonedElement = element.cloneNode(false);
-            window.hoveredElementHtml = clonedElement.outerHTML;
-            console.log('Element hovered for 5 seconds: ' + window.hoveredElementHtml);
-        }, 5000);  // 5 seconds
-    }, true);
-    document.addEventListener('mouseout', function(event) {
-        clearTimeout(hoverTimeout);
-    }, true);
-    """
-    driver.execute_script(script)
+    def print_recorded_elements(self):
+        print("Shutdown hook triggered. Printing recorded elements...")
+        self.print_elements("All Clicked Elements by Page:", self.page_clicks_map)
+        self.print_elements("All Hovered Elements by Page:", self.page_hovers_map)
+
+    def print_elements(self, header, elements_map):
+        print(header)
+        for page_url, elements in elements_map.items():
+            if elements:
+                print(f"Page URL: {page_url}")
+                for element_html in elements:
+                    print(f" - {element_html}")
+
+    def clean_up(self):
+        try:
+            self.driver.quit()
+        except WebDriverException:
+            pass
 
 if __name__ == "__main__":
-    run_test_recorder()
+    recorder = TestRecorder()
+    recorder.run()
