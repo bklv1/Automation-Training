@@ -8,16 +8,41 @@
 <body>
     <h1>Test Recorder UI</h1>
     <button id="runScript">Run Test Recorder</button>
-    <div id="output"></div>
+    <textarea id="testSteps" rows="4" cols="50" placeholder="Enter test steps here"></textarea>
+    <button id="submitToAider">Submit to Aider</button>
+    <div id="output" style="display: none;"></div>
 
     <script>
+        let testRecorderOutput = '';
+
         document.getElementById('runScript').addEventListener('click', function() {
             fetch('/run-script')
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('output').innerText = data.output;
+                    testRecorderOutput = data.output;
+                    document.getElementById('output').innerText = 'Test Recorder executed successfully';
                 })
                 .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('submitToAider').addEventListener('click', function() {
+            const testSteps = document.getElementById('testSteps').value;
+            
+            fetch('/submit-to-aider', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    output: testRecorderOutput,
+                    testSteps: testSteps
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Submitted to Aider successfully');
+            })
+            .catch(error => console.error('Error:', error));
         });
     </script>
 </body>
