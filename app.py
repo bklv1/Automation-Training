@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify, render_template
 import subprocess
 import os
 import sys
+import tempfile
 
 app = Flask(__name__)
 
@@ -28,15 +29,34 @@ def submit_to_aider():
     output = data.get('output')
     test_steps = data.get('testSteps')
     
-    prompt = f"As a senior automation qa you have to automate the test scenario using the currently implemented methods and only implement what is missing. Please follow the practices used inside the codebase. Below I have provided test steps to automate and also the  Here are the test steps: {test_steps}\n\nHere is the output from the Test Recorder:\n{output}"
+    prompt = f"As a senior automation qa you have to automate the test scenario using the currently implemented methods and only implement what is missing. Please follow the practices used inside the codebase. Here are the test steps: {test_steps}\n\nHere is the output from the Test Recorder:\n{output}"
     
-    # Here you would typically send this prompt to Aider
-    # For now, we'll just return the prompt
-    return jsonify({
-        'status': 'success',
-        'message': 'Submitted to Aider',
-        'prompt': prompt
-    })
+    # Create a temporary file to store the prompt
+    with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.txt') as temp_file:
+        temp_file.write(prompt)
+        temp_file_path = temp_file.name
+
+    try:
+        # Run Aider command
+        aider_command = f"aider {temp_file_path}"
+        process = subprocess.Popen(aider_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
+        stdout, stderr = process.communicate()
+
+        if stderr:
+            return jsonify({
+                'status': 'error',
+                'message': 'Error from Aider',
+                'output': stderr
+            })
+        else:
+            return jsonify({
+                'status': 'success',
+                'message': 'Aider response received',
+                'output': stdout
+            })
+    finally:
+        # Clean up the temporary file
+        os.unlink(temp_file_path)
 
 @app.route('/')
 def index():

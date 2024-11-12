@@ -94,10 +94,18 @@
         })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('output').innerText = 'Prompt sent to Aider:\n\n' + data.prompt;
+                if (data.status === 'success') {
+                    document.getElementById('output').innerText = 'Aider Response:\n\n' + data.output;
+                } else {
+                    document.getElementById('output').innerText = 'Error from Aider:\n\n' + data.output;
+                }
                 document.getElementById('output').style.display = 'block';
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('output').innerText = 'An error occurred while communicating with the server.';
+                document.getElementById('output').style.display = 'block';
+            });
     });
 </script>
 </body>
