@@ -28,14 +28,15 @@ def submit_to_aider():
     output = data.get('output')
     test_steps = data.get('testSteps')
     
-    prompt = f"{{OUTPUT}} As a senior automation qa you have to automate the test scenario using the currently implemented methods and only implement what is missing. Please follow the practices used inside the codebase. Here are the test steps: {{TEST_STEPS}}"
+    prompt = f"As a senior automation qa you have to automate the test scenario using the currently implemented methods and only implement what is missing. Please follow the practices used inside the codebase. Here are the test steps: {test_steps}\n\nHere is the output from the Test Recorder:\n{output}"
     
     # Here you would typically send this prompt to Aider
-    # For now, we'll just print it to the console
-    print(f"Prompt to be sent to Aider:\n{prompt}\n\nWith OUTPUT:\n{output}\n\nAnd TEST_STEPS:\n{test_steps}")
-    
-    # In a real scenario, you'd process the Aider response here
-    return jsonify({'status': 'success', 'message': 'Submitted to Aider'})
+    # For now, we'll just return the prompt
+    return jsonify({
+        'status': 'success',
+        'message': 'Submitted to Aider',
+        'prompt': prompt
+    })
 
 @app.route('/')
 def index():

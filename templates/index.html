@@ -21,6 +21,7 @@
                 .then(data => {
                     testRecorderOutput = data.output;
                     document.getElementById('output').innerText = 'Test Recorder executed successfully';
+                    document.getElementById('output').style.display = 'block';
                 })
                 .catch(error => console.error('Error:', error));
         });
@@ -40,7 +41,8 @@
             })
             .then(response => response.json())
             .then(data => {
-                alert('Submitted to Aider successfully');
+                document.getElementById('output').innerText = 'Prompt sent to Aider:\n\n' + data.prompt;
+                document.getElementById('output').style.display = 'block';
             })
             .catch(error => console.error('Error:', error));
         });
