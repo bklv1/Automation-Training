@@ -28,7 +28,7 @@ def submit_to_aider():
     output = data.get('output')
     test_steps = data.get('testSteps')
     
-    prompt = f"As a senior automation qa you have to automate the test scenario using the currently implemented methods and only implement what is missing. Please follow the practices used inside the codebase. Here are the test steps: {test_steps}\n\nHere is the output from the Test Recorder:\n{output}"
+    prompt = f"As a senior automation qa you have to automate the test scenario using the currently implemented methods and only implement what is missing. Please follow the practices used inside the codebase. Below I have provided test steps to automate and also the  Here are the test steps: {test_steps}\n\nHere is the output from the Test Recorder:\n{output}"
     
     # Here you would typically send this prompt to Aider
     # For now, we'll just return the prompt

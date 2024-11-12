@@ -4,48 +4,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Recorder UI</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2em;
+            text-align: center;
+        }
+        button {
+            margin: 10px 0;
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #fff;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            max-width: 400px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        textarea {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-width: 400px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
-    <h1>Test Recorder UI</h1>
-    <button id="runScript">Run Test Recorder</button>
-    <textarea id="testSteps" rows="4" cols="50" placeholder="Enter test steps here"></textarea>
-    <button id="submitToAider">Submit to Aider</button>
-    <div id="output" style="display: none;"></div>
+<h1>ROMPOMPOM</h1>
+<button id="runScript">Run Test Recorder</button>
+<textarea id="testSteps" rows="4" cols="50" placeholder="Enter test steps here"></textarea>
+<button id="submitToAider">Submit to Aider</button>
+<div id="output" style="display: none;"></div>
 
-    <script>
-        let testRecorderOutput = '';
+<script>
+    let testRecorderOutput = '';
 
-        document.getElementById('runScript').addEventListener('click', function() {
-            fetch('/run-script')
-                .then(response => response.json())
-                .then(data => {
-                    testRecorderOutput = data.output;
-                    document.getElementById('output').innerText = 'Test Recorder executed successfully';
-                    document.getElementById('output').style.display = 'block';
-                })
-                .catch(error => console.error('Error:', error));
-        });
-
-        document.getElementById('submitToAider').addEventListener('click', function() {
-            const testSteps = document.getElementById('testSteps').value;
-            
-            fetch('/submit-to-aider', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    output: testRecorderOutput,
-                    testSteps: testSteps
-                })
+    document.getElementById('runScript').addEventListener('click', function() {
+        fetch('/run-script')
+            .then(response => response.json())
+            .then(data => {
+                testRecorderOutput = data.output;
+                document.getElementById('output').innerText = 'Test Recorder executed successfully';
+                document.getElementById('output').style.display = 'block';
             })
+            .catch(error => console.error('Error:', error));
+    });
+
+    document.getElementById('submitToAider').addEventListener('click', function() {
+        const testSteps = document.getElementById('testSteps').value;
+
+        fetch('/submit-to-aider', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                output: testRecorderOutput,
+                testSteps: testSteps
+            })
+        })
             .then(response => response.json())
             .then(data => {
                 document.getElementById('output').innerText = 'Prompt sent to Aider:\n\n' + data.prompt;
                 document.getElementById('output').style.display = 'block';
             })
             .catch(error => console.error('Error:', error));
-        });
-    </script>
+    });
+</script>
 </body>
 </html>
