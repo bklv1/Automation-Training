@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Recorder UI</title>
+</head>
+<body>
+    <h1>Test Recorder UI</h1>
+    <button id="runScript">Run Test Recorder</button>
+    <div id="output"></div>
+
+    <script>
+        document.getElementById('runScript').addEventListener('click', function() {
+            fetch('/run-script')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('output').innerText = data.output;
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
