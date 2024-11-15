@@ -87,7 +87,7 @@ def submit_to_aider():
               f"Here are the test steps: {test_steps}\n\nHere is the output from the Test Recorder:\n{output}")
 
     try:
-        reply = coder.chat(prompt)
+        reply = coder.process_input(prompt)
         return jsonify({
             'status': 'success',
             'message': 'Aider response received',
