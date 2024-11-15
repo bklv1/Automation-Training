@@ -20,17 +20,17 @@ class TestRecorder:
     def run(self):
         try:
             self.setup_shutdown_hook()
-            self.open_initial_page("https://opensource-demo.orangehrmlive.com/")
+            # self.open_initial_page("https://opensource-demo.orangehrmlive.com/")
             self.monitor_user_interactions()
         finally:
             self.clean_up()
 
-    def open_initial_page(self, url):
-        self.driver.get(url)
-        self.current_url = self.driver.current_url
-        self.page_clicks_map[self.current_url] = []
-        self.page_hovers_map[self.current_url] = []
-        self.inject_listeners()
+    # def open_initial_page(self, url):
+    #     self.driver.get(url)
+    #     self.current_url = self.driver.current_url
+    #     self.page_clicks_map[self.current_url] = []
+    #     self.page_hovers_map[self.current_url] = []
+    #     self.inject_listeners()
 
     def monitor_user_interactions(self):
         browser_open = True
@@ -59,13 +59,13 @@ class TestRecorder:
         clicked_element_html = self.driver.execute_script("return window.clickedElementHtml;")
         if clicked_element_html and clicked_element_html not in self.page_clicks_map[self.current_url]:
             self.page_clicks_map[self.current_url].append(clicked_element_html)
-            print(f"Clicked Element: {clicked_element_html}")
+            # print(f"Clicked Element: {clicked_element_html}")
 
     def record_hovered_element(self):
         hovered_element_html = self.driver.execute_script("return window.hoveredElementHtml;")
         if hovered_element_html and hovered_element_html not in self.page_hovers_map[self.current_url]:
             self.page_hovers_map[self.current_url].append(hovered_element_html)
-            print(f"Hovered Element: {hovered_element_html}")
+            # print(f"Hovered Element: {hovered_element_html}")
 
     def inject_listeners(self):
         script = """

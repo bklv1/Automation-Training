@@ -27,3 +27,37 @@ public class AdminPage extends Base {
         Button.clickButtonByText("Reset");
     }
 }
+package pages;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class AdminPage {
+
+    @FindBy(xpath = "//span[text()='Admin']")
+    private WebElement adminMenu;
+
+    @FindBy(xpath = "//label[text()='Username']/following::input[1]")
+    private WebElement usernameInput;
+
+    @FindBy(xpath = "//button[@type='submit']")
+    private WebElement searchButton;
+
+    public AdminPage(WebDriver driver) {
+        PageFactory.initElements(driver, this);
+    }
+
+    public void navigateToAdminSection() {
+        adminMenu.click();
+    }
+
+    public void setUsername(String username) {
+        usernameInput.sendKeys(username);
+    }
+
+    public void clickSearch() {
+        searchButton.click();
+    }
+}
