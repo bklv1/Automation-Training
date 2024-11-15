@@ -59,10 +59,15 @@ def run_script():
         with open(test_recorder_path, 'r') as file:
             script_content = file.read()
         
-        # Execute the script content
-        exec(script_content, globals())
+        # Create a local namespace to execute the script content
+        local_namespace = {}
+        exec(script_content, local_namespace)
         
-        # Assuming the script defines a TestRecorder class
+        # Access the TestRecorder class from the local namespace
+        TestRecorder = local_namespace.get('TestRecorder')
+        if TestRecorder is None:
+            raise ValueError("TestRecorder class not found in the script")
+        
         recorder = TestRecorder()
         recorder.run()
         
