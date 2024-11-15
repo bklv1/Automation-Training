@@ -39,8 +39,11 @@ def submit_to_aider():
         temp_file_path = temp_file.name
 
     try:
-        # Run Aider command
-        aider_command = f"aider {temp_file_path}"
+        # Construct the command to activate venv and run aider
+        venv_path = os.path.join(os.getcwd(), 'venv', 'Scripts', 'activate.bat')
+        aider_command = f'cmd /c "{venv_path} && aider {temp_file_path}"'
+
+        # Run the command
         process = subprocess.Popen(aider_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
         stdout, stderr = process.communicate()
 
@@ -56,6 +59,12 @@ def submit_to_aider():
                 'message': 'Aider response received',
                 'output': stdout
             })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': 'An error occurred',
+            'output': str(e)
+        })
     finally:
         # Clean up the temporary file
         os.unlink(temp_file_path)
