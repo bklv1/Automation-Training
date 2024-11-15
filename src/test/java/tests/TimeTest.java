@@ -1,9 +1,11 @@
+package tests;
+
 import org.testng.annotations.Test;
 import pages.LoginPage;
 import pages.TimePage;
-import tests.BaseTest;
 
-public class TimeTest extends BaseTest {
+public class TimeTest
+    extends BaseTest {
 
     @Test
     public void searchAndViewEmployeeTimesheet() {

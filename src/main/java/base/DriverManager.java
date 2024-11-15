@@ -15,19 +15,22 @@ public class DriverManager {
 
     public static WebDriver getDriver() {
         if (driver == null) {
-            System.setProperty("webdriver.chrome.driver", "C:/Program Files/chromedriver/chromedriver.exe");
 
             ChromeOptions options = new ChromeOptions();
             options.addArguments("--remote-allow-origins=*");
             options.addArguments("--start-maximized");
             options.addArguments("--disable-extensions");
             options.addArguments("--disable-popup-blocking");
-            options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
+            options.setExperimentalOption("excludeSwitches", new String[] { "enable-automation" });
             options.setExperimentalOption("useAutomationExtension", false);
 
             driver = new ChromeDriver(options);
-            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-            driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
+            driver.manage()
+                .timeouts()
+                .implicitlyWait(Duration.ofSeconds(10));
+            driver.manage()
+                .timeouts()
+                .pageLoadTimeout(Duration.ofSeconds(30));
         }
         return driver;
     }
