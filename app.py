@@ -1,27 +1,75 @@
 # app.py
 from flask import Flask, request, jsonify, render_template
-import subprocess
 import os
 import sys
-import tempfile
+
+from aider.coders import Coder
+from aider.io import InputOutput
+from aider.main import main as cli_main
 
 app = Flask(__name__)
 
-def run_python_script():
-    cwd = os.getcwd()
-    test_recorder_path = os.path.join(cwd, "test_recorder.py")
-    run_command = [sys.executable, test_recorder_path]
-    process = subprocess.Popen(run_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=cwd)
-    stdout, stderr = process.communicate()
-    if stderr:
-        return f"Test Recorder error: {stderr}"
-    else:
-        return stdout
+class CaptureIO(InputOutput):
+    def __init__(self):
+        super().__init__(pretty=False, yes=True, dry_run=True)
+        self.captured_output = []
+
+    def tool_output(self, msg, log_only=False):
+        if not log_only:
+            self.captured_output.append(msg)
+        super().tool_output(msg, log_only=log_only)
+
+    def tool_error(self, msg):
+        self.captured_output.append(msg)
+        super().tool_error(msg)
+
+    def tool_warning(self, msg):
+        self.captured_output.append(msg)
+        super().tool_warning(msg)
+
+    def get_captured_output(self):
+        output = "\n".join(self.captured_output)
+        self.captured_output = []
+        return output
+
+def get_coder():
+    coder = cli_main(return_coder=True)
+    if not isinstance(coder, Coder):
+        raise ValueError(coder)
+    if not coder.repo:
+        raise ValueError("GUI can currently only be used inside a git repo")
+
+    io = CaptureIO()
+    coder.commands.io = io
+    coder.auto_commit = False
+    coder.yield_stream = True
+    coder.stream = True
+    coder.pretty = False
+
+    return coder
+
+coder = get_coder()
 
 @app.route('/run-script', methods=['GET'])
 def run_script():
-    output = run_python_script()
-    return jsonify({'output': output})
+    cwd = os.getcwd()
+    test_recorder_path = os.path.join(cwd, "test_recorder.py")
+    
+    try:
+        with open(test_recorder_path, 'r') as file:
+            script_content = file.read()
+        
+        # Execute the script content
+        exec(script_content, globals())
+        
+        # Assuming the script defines a TestRecorder class
+        recorder = TestRecorder()
+        recorder.run()
+        
+        output = coder.commands.io.get_captured_output()
+        return jsonify({'output': output})
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
 @app.route('/submit-to-aider', methods=['POST'])
 def submit_to_aider():
@@ -32,42 +80,20 @@ def submit_to_aider():
     prompt = (f"As a senior automation qa you have to automate the test scenario using the currently"
               f" implemented methods and only implement what is missing. Please follow the practices used inside the codebase. "
               f"Here are the test steps: {test_steps}\n\nHere is the output from the Test Recorder:\n{output}")
-    
-    # Create a temporary file to store the prompt
-    with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.txt') as temp_file:
-        temp_file.write(prompt)
-        temp_file_path = temp_file.name
 
     try:
-        # Construct the command to activate venv and run aider
-        venv_path = os.path.join(os.getcwd(), 'venv', 'Scripts', 'activate.bat')
-        aider_command = f'cmd /c "{venv_path} && aider {temp_file_path}"'
-
-        # Run the command
-        process = subprocess.Popen(aider_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
-        stdout, stderr = process.communicate()
-
-        if stderr:
-            return jsonify({
-                'status': 'error',
-                'message': 'Error from Aider',
-                'output': stderr
-            })
-        else:
-            return jsonify({
-                'status': 'success',
-                'message': 'Aider response received',
-                'output': stdout
-            })
+        reply = coder.chat(prompt)
+        return jsonify({
+            'status': 'success',
+            'message': 'Aider response received',
+            'output': reply
+        })
     except Exception as e:
         return jsonify({
             'status': 'error',
             'message': 'An error occurred',
             'output': str(e)
         })
-    finally:
-        # Clean up the temporary file
-        os.unlink(temp_file_path)
 
 @app.route('/')
 def index():
