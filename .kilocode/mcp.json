@@ -9,7 +9,8 @@
         "browser_navigate",
         "browser_snapshot",
         "browser_click",
-        "browser_close"
+        "browser_close",
+        "browser_type"
       ]
     }
   }
