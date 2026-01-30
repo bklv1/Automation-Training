@@ -14,7 +14,7 @@ public class AdminTest
     public void searchForAdmin() {
         LoginPage.loginWithCookie(cookie);
         AdminPage.searchForAdmin();
-        Table.assertFirstRowValue(Arrays.asList("Admin", "Admin", "manda user", "Enabled"));
+        Table.assertFirstRowValue(Arrays.asList("Admin", "Admin", "Abhi yadav", "Enabled"));
     }
 
     @Test
